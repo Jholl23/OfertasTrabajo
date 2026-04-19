@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { formControlClassName } from '../components/forms/styles'
 import { ImportJobFromUrlPanel } from '../features/import-job/ImportJobFromUrlPanel'
 import { JobOfferForm } from '../features/job-offers/JobOfferForm'
 import { JobOffersTable } from '../features/job-offers/JobOffersTable'
 import { createJobOffer, deleteJobOffer, listJobOffers, listJobOffersForExport, updateJobOffer } from '../features/job-offers/api'
 import { downloadJobOffersCsv } from '../lib/utils/csv'
-import { JOB_OFFER_STATUSES, type JobOffer, type JobOfferPayload, type JobOfferStatus } from '../types/job-offer'
+import { formatJobOfferStatus } from '../lib/utils/job-offer-format'
+import { ACTIVE_JOB_OFFER_STATUSES, JOB_OFFER_STATUSES, type JobOffer, type JobOfferPayload, type JobOfferStatus } from '../types/job-offer'
 
 type EditorState =
   | { mode: 'create' }
@@ -25,6 +27,8 @@ export function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [importNotice, setImportNotice] = useState<string | null>(null)
+
+  const hasActiveFilters = search.trim().length > 0 || statusFilter !== 'all'
 
   const loadOffers = useCallback(async () => {
     setIsLoading(true)
@@ -54,7 +58,7 @@ export function DashboardPage() {
 
   const stats = useMemo(() => {
     const total = offers.length
-    const active = offers.filter((offer) => ['new', 'reviewing', 'applied', 'interview'].includes(offer.offer_status)).length
+    const active = offers.filter((offer) => ACTIVE_JOB_OFFER_STATUSES.has(offer.offer_status)).length
     const applied = offers.filter((offer) => offer.offer_status === 'applied').length
     const rejected = offers.filter((offer) => offer.offer_status === 'rejected').length
 
@@ -99,7 +103,7 @@ export function DashboardPage() {
   }
 
   const onDelete = async (offer: JobOffer) => {
-    const confirmed = window.confirm(`Delete offer \"${offer.job_title}\" from ${offer.company}?`)
+    const confirmed = window.confirm(`Delete offer "${offer.job_title}" from ${offer.company}?`)
     if (!confirmed) {
       return
     }
@@ -143,10 +147,10 @@ export function DashboardPage() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total offers" value={stats.total} />
-        <StatCard title="Active offers" value={stats.active} />
-        <StatCard title="Applied" value={stats.applied} />
-        <StatCard title="Rejected" value={stats.rejected} />
+        <StatCard title="Total offers" value={stats.total} hint="All tracked opportunities" />
+        <StatCard title="Active offers" value={stats.active} hint="New, reviewing, applied, interview" />
+        <StatCard title="Applied" value={stats.applied} hint="Applications submitted" />
+        <StatCard title="Rejected" value={stats.rejected} hint="Closed without progress" />
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-panel">
@@ -171,31 +175,47 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="mb-5 grid gap-3 md:grid-cols-[1fr_220px]">
+        <div className="mb-3 grid gap-3 md:grid-cols-[1fr_220px_auto]">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search title, company, or description"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-brand-500 focus:border-brand-500 focus:ring-2"
+            className={formControlClassName}
           />
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value as 'all' | JobOfferStatus)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-brand-500 focus:border-brand-500 focus:ring-2"
+            className={formControlClassName}
           >
             <option value="all">All statuses</option>
             {JOB_OFFER_STATUSES.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {formatJobOfferStatus(status)}
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={() => {
+              setSearch('')
+              setStatusFilter('all')
+            }}
+            disabled={!hasActiveFilters}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Clear filters
+          </button>
         </div>
+
+        <p className="mb-4 text-xs text-slate-500">
+          Showing {offers.length} offer{offers.length === 1 ? '' : 's'} {hasActiveFilters ? 'with active filters.' : 'in your tracker.'}
+        </p>
 
         <JobOffersTable
           offers={offers}
           isLoading={isLoading}
           errorMessage={errorMessage}
+          hasActiveFilters={hasActiveFilters}
           onRetry={() => void loadOffers()}
           onEdit={(offer) => setEditorState({ mode: 'edit', offer })}
           onDelete={(offer) => void onDelete(offer)}
@@ -228,13 +248,15 @@ export function DashboardPage() {
 type StatCardProps = {
   title: string
   value: number
+  hint: string
 }
 
-function StatCard({ title, value }: StatCardProps) {
+function StatCard({ title, value, hint }: StatCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-panel">
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
       <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
+      <p className="mt-1 text-xs text-slate-500">{hint}</p>
     </article>
   )
 }

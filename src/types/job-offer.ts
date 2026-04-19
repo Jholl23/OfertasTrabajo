@@ -10,6 +10,18 @@ export const JOB_OFFER_STATUSES = [
 
 export type JobOfferStatus = (typeof JOB_OFFER_STATUSES)[number]
 
+export const JOB_OFFER_STATUS_LABELS: Record<JobOfferStatus, string> = {
+  new: 'New',
+  reviewing: 'Reviewing',
+  applied: 'Applied',
+  interview: 'Interview',
+  rejected: 'Rejected',
+  closed: 'Closed',
+  archived: 'Archived',
+}
+
+export const ACTIVE_JOB_OFFER_STATUSES: ReadonlySet<JobOfferStatus> = new Set(['new', 'reviewing', 'applied', 'interview'])
+
 export type JobOffer = {
   id: string
   owner_id: string

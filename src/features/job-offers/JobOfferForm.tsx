@@ -1,5 +1,8 @@
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 
+import { FormField } from '../../components/forms/FormField'
+import { formControlClassName } from '../../components/forms/styles'
+import { formatJobOfferStatus } from '../../lib/utils/job-offer-format'
 import {
   createEmptyJobOfferDraft,
   toJobOfferPayload,
@@ -41,7 +44,7 @@ export function JobOfferForm({ mode, initialValue, isSubmitting, onCancel, onSub
   const [errors, setErrors] = useState<ValidationErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const title = useMemo(() => (mode === 'create' ? 'Create Offer' : 'Edit Offer'), [mode])
+  const title = useMemo(() => (mode === 'create' ? 'Create Job Offer' : 'Edit Job Offer'), [mode])
 
   const onFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -51,6 +54,7 @@ export function JobOfferForm({ mode, initialValue, isSubmitting, onCancel, onSub
     setErrors(validationErrors)
 
     if (Object.keys(validationErrors).length > 0) {
+      setSubmitError('Please fix the highlighted fields before saving.')
       return
     }
 
@@ -65,13 +69,13 @@ export function JobOfferForm({ mode, initialValue, isSubmitting, onCancel, onSub
     }
   }
 
-  const inputClassName =
-    'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-brand-500 transition focus:border-brand-500 focus:ring-2'
-
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-panel">
-      <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+          <p className="text-sm text-slate-600">Capture the key details now and refine notes as your process moves forward.</p>
+        </div>
         <button
           type="button"
           onClick={onCancel}
@@ -82,146 +86,148 @@ export function JobOfferForm({ mode, initialValue, isSubmitting, onCancel, onSub
       </div>
 
       <form onSubmit={onFormSubmit} className="grid gap-4 md:grid-cols-2">
-        <Field label="Company *" error={errors.company}>
-          <input
-            value={draft.company}
-            onChange={(event) => setDraft((previous) => ({ ...previous, company: event.target.value }))}
-            className={inputClassName}
-          />
-        </Field>
+        <div className="md:col-span-2 grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-2">
+          <FormField label="Company *" error={errors.company}>
+            <input
+              value={draft.company}
+              onChange={(event) => setDraft((previous) => ({ ...previous, company: event.target.value }))}
+              className={formControlClassName}
+            />
+          </FormField>
 
-        <Field label="Job title *" error={errors.job_title}>
-          <input
-            value={draft.job_title}
-            onChange={(event) => setDraft((previous) => ({ ...previous, job_title: event.target.value }))}
-            className={inputClassName}
-          />
-        </Field>
+          <FormField label="Job title *" error={errors.job_title}>
+            <input
+              value={draft.job_title}
+              onChange={(event) => setDraft((previous) => ({ ...previous, job_title: event.target.value }))}
+              className={formControlClassName}
+            />
+          </FormField>
 
-        <Field label="Status *" error={errors.offer_status}>
-          <select
-            value={draft.offer_status}
-            onChange={(event) => setDraft((previous) => ({ ...previous, offer_status: event.target.value as JobOfferDraft['offer_status'] }))}
-            className={inputClassName}
-          >
-            {JOB_OFFER_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </Field>
+          <FormField label="Status *" error={errors.offer_status}>
+            <select
+              value={draft.offer_status}
+              onChange={(event) => setDraft((previous) => ({ ...previous, offer_status: event.target.value as JobOfferDraft['offer_status'] }))}
+              className={formControlClassName}
+            >
+              {JOB_OFFER_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {formatJobOfferStatus(status)}
+                </option>
+              ))}
+            </select>
+          </FormField>
 
-        <Field label="Date found *" error={errors.date_found}>
-          <input
-            type="date"
-            value={draft.date_found}
-            onChange={(event) => setDraft((previous) => ({ ...previous, date_found: event.target.value }))}
-            className={inputClassName}
-          />
-        </Field>
+          <FormField label="Date found *" error={errors.date_found}>
+            <input
+              type="date"
+              value={draft.date_found}
+              onChange={(event) => setDraft((previous) => ({ ...previous, date_found: event.target.value }))}
+              className={formControlClassName}
+            />
+          </FormField>
+        </div>
 
-        <Field label="Closing date">
+        <FormField label="Closing date">
           <input
             type="date"
             value={draft.closing_date}
             onChange={(event) => setDraft((previous) => ({ ...previous, closing_date: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="URL" error={errors.url}>
+        <FormField label="URL" error={errors.url}>
           <input
             value={draft.url}
             onChange={(event) => setDraft((previous) => ({ ...previous, url: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
             placeholder="https://..."
           />
-        </Field>
+        </FormField>
 
-        <Field label="External offer id">
+        <FormField label="External offer ID">
           <input
             value={draft.external_offer_id}
             onChange={(event) => setDraft((previous) => ({ ...previous, external_offer_id: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Source site">
+        <FormField label="Source site">
           <input
             value={draft.source_site}
             onChange={(event) => setDraft((previous) => ({ ...previous, source_site: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Currency">
+        <FormField label="Currency">
           <input
             value={draft.currency}
             onChange={(event) => setDraft((previous) => ({ ...previous, currency: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
             placeholder="USD"
           />
-        </Field>
+        </FormField>
 
-        <Field label="Salary raw">
+        <FormField label="Salary raw">
           <input
             value={draft.salary_raw}
             onChange={(event) => setDraft((previous) => ({ ...previous, salary_raw: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Salary min" error={errors.salary_min}>
+        <FormField label="Salary min" error={errors.salary_min}>
           <input
             value={draft.salary_min}
             onChange={(event) => setDraft((previous) => ({ ...previous, salary_min: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Salary max" error={errors.salary_max}>
+        <FormField label="Salary max" error={errors.salary_max}>
           <input
             value={draft.salary_max}
             onChange={(event) => setDraft((previous) => ({ ...previous, salary_max: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Import confidence" error={errors.import_confidence}>
+        <FormField label="Import confidence" error={errors.import_confidence}>
           <input
             value={draft.import_confidence}
             onChange={(event) => setDraft((previous) => ({ ...previous, import_confidence: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
             placeholder="0 - 1"
           />
-        </Field>
+        </FormField>
 
-        <Field label="Job functions">
+        <FormField label="Job functions">
           <input
             value={draft.job_functions}
             onChange={(event) => setDraft((previous) => ({ ...previous, job_functions: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Description" className="md:col-span-2">
+        <FormField label="Description" className="md:col-span-2">
           <textarea
             value={draft.description}
             onChange={(event) => setDraft((previous) => ({ ...previous, description: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
             rows={4}
           />
-        </Field>
+        </FormField>
 
-        <Field label="Notes" className="md:col-span-2">
+        <FormField label="Notes" className="md:col-span-2">
           <textarea
             value={draft.notes}
             onChange={(event) => setDraft((previous) => ({ ...previous, notes: event.target.value }))}
-            className={inputClassName}
+            className={formControlClassName}
             rows={3}
           />
-        </Field>
+        </FormField>
 
         <label className="md:col-span-2 flex items-center gap-2 text-sm text-slate-700">
           <input
@@ -245,22 +251,5 @@ export function JobOfferForm({ mode, initialValue, isSubmitting, onCancel, onSub
         </div>
       </form>
     </section>
-  )
-}
-
-type FieldProps = {
-  label: string
-  children: ReactNode
-  error?: string
-  className?: string
-}
-
-function Field({ label, children, error, className }: FieldProps) {
-  return (
-    <label className={`block ${className ?? ''}`}>
-      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
-      {children}
-      {error ? <span className="mt-1 block text-xs text-rose-600">{error}</span> : null}
-    </label>
   )
 }

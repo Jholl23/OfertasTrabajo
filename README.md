@@ -1,6 +1,45 @@
-# Job Offers Tracker (Scaffold)
+# Job Offers Tracker (v1)
 
-A static React + Vite + TypeScript starter for a personal job offers tracker. This scaffold now includes a Supabase client foundation and a secure authentication flow using Supabase Auth.
+A static React + Vite + TypeScript web app for managing your personal job search pipeline with Supabase.
+
+## v1 Overview
+
+Version 1 focuses on a reliable and maintainable flow for individual job tracking:
+
+- Secure sign in with Supabase Auth.
+- Auth-protected dashboard for job offer management.
+- CRUD operations on offers with validation.
+- Search and status filtering.
+- URL import with mandatory manual review before save.
+- CSV export for Excel usage.
+- Lightweight stats and clean responsive UI.
+
+This project intentionally prioritizes predictable UX, strong data scoping, and low operational complexity over advanced automation.
+
+## v1 Feature List
+
+- **Authentication**
+  - Email/password sign-in and sign-out.
+  - Session restore on refresh.
+  - Route guards for public-only and protected views.
+- **Dashboard**
+  - Offer table with loading/error/empty states.
+  - Status badges, readable dates, and direct job URL access.
+  - Stats cards: total, active, applied, rejected.
+- **Offers CRUD**
+  - Create, edit, and delete offers.
+  - Input validation and friendly inline errors.
+- **Filtering & Search**
+  - Search by title, company, and description.
+  - Status filter with quick reset.
+- **URL Import Review**
+  - Supabase Edge Function extraction (`import-job-from-url`).
+  - Confidence indicator.
+  - Required “reviewed” confirmation before save.
+- **CSV Export**
+  - Human-readable headers.
+  - ISO date preservation.
+  - Includes `salary_raw`, `salary_min`, and `salary_max`.
 
 ## Tech Stack
 
@@ -15,6 +54,7 @@ A static React + Vite + TypeScript starter for a personal job offers tracker. Th
 src/
   app/
   components/
+    forms/
     layout/
   features/
     auth/
@@ -80,27 +120,7 @@ The app validates these variables at startup and fails fast if they are missing.
 - Session is restored on refresh using Supabase auth persistence.
 - Protected routes redirect unauthenticated users to `/login`.
 - Authenticated users are redirected away from `/login` to `/dashboard`.
-- Top navigation includes a logout action and shows active user email.
-
-## Current UI Scope
-
-- Supabase-backed login page
-- Route-protected dashboard shell
-- Session-aware layout with active user email
-- Full job offers CRUD dashboard (list, create, edit, delete)
-- Search by title/company/description and status filtering
-- CSV export button to download all authenticated user job offers
-- URL import UI with manual review and confirmation before saving
-- Dashboard stats cards plus loading/empty/error states for offers
-- Logout action in top navigation
-
-## CSV Export
-
-- The dashboard includes an **Export CSV** button in the offers section.
-- Export is generated from the authenticated user's rows only (via Supabase auth + RLS policies).
-- The CSV uses human-friendly column names and keeps ISO date fields unchanged.
-- Salary columns include `salary_raw`, `salary_min`, and `salary_max`.
-
+- Data operations enforce an active session before executing API calls.
 
 ## URL Import Edge Function
 
@@ -121,41 +141,12 @@ supabase functions serve import-job-from-url
 
 See `supabase/functions/import-job-from-url/README.md` for usage details.
 
-## URL Import Review Flow (Frontend)
-
-The dashboard includes an **Import offer from URL** panel:
-
-1. Paste a job posting URL and click **Import URL**.
-2. The frontend calls Supabase Edge Function `import-job-from-url`.
-3. Extracted values are loaded into a review form.
-4. You can edit any field before saving.
-5. A confidence badge is displayed. Imports below `0.60` are highlighted as low confidence.
-6. Saving is blocked until you explicitly check the manual confirmation box.
-7. After confirmation, the app saves the reviewed payload through the normal `job_offers` insert flow.
-
-Error handling included:
-
-- URL validation before request.
-- Import request error surface (network/function failures).
-- Field-level validation for reviewed data prior to save.
-- Save errors surfaced without losing review form state.
-
 ## Progress Notes
 
 ### 2026-04-19
 
-- Initialized frontend scaffold with routing and modular folders.
-- Added Tailwind CSS base configuration and professional default theme.
-- Added placeholder pages and layout components for login and dashboard.
-- Prepared feature folders for future incremental implementation.
-- Added Supabase client initialization with validated Vite environment variables.
-- Implemented Supabase Auth flow (login, session restore, logout).
-- Added modular auth provider/hooks and route guards for protected pages.
-- Updated layout and navigation to reflect session-aware UI behavior.
-- Implemented job offer domain types and validation schema helpers.
-- Added Supabase-backed job offers CRUD API layer with search and status filtering.
-- Built professional dashboard table UI with loading, empty, and error states.
-- Added create/edit forms covering all v1 job offer fields and validation messages.
-- Added CSV export flow with a dashboard action and client-side CSV generation.
-- Added `import-job-from-url` Supabase Edge Function with phase 1 deterministic extraction and review-only response behavior.
-- Implemented dashboard URL import review UI, low-confidence highlighting, and manual-confirmation-only save flow.
+- Polished v1 dashboard UX: clearer table rows, improved filter controls, richer stat cards, and stronger empty states.
+- Unified duplicated form field/input styles into shared form components.
+- Standardized status naming presentation across table and forms.
+- Added explicit frontend session gating for all auth-protected data and import operations.
+- Updated README to reflect the v1 release scope and current capabilities.

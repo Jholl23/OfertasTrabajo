@@ -1,3 +1,4 @@
+import { requireSession } from '../auth/requireSession'
 import { supabase } from '../../lib/supabase/client'
 import type { JobOffer, JobOfferPayload, JobOfferStatus } from '../../types/job-offer'
 
@@ -31,6 +32,8 @@ const JOB_OFFERS_BASE_SELECT = `
 `
 
 export async function listJobOffers(options: ListJobOffersOptions): Promise<JobOffer[]> {
+  await requireSession()
+
   let query = supabase.from('job_offers').select(JOB_OFFERS_BASE_SELECT).order('date_found', { ascending: false })
 
   if (options.status !== 'all') {
@@ -53,6 +56,8 @@ export async function listJobOffers(options: ListJobOffersOptions): Promise<JobO
 }
 
 export async function listJobOffersForExport(): Promise<JobOffer[]> {
+  await requireSession()
+
   const { data, error } = await supabase.from('job_offers').select(JOB_OFFERS_BASE_SELECT).order('date_found', { ascending: false })
 
   if (error) {
@@ -63,6 +68,8 @@ export async function listJobOffersForExport(): Promise<JobOffer[]> {
 }
 
 export async function createJobOffer(payload: JobOfferPayload): Promise<JobOffer> {
+  await requireSession()
+
   const { data, error } = await supabase
     .from('job_offers')
     .insert(payload)
@@ -77,6 +84,8 @@ export async function createJobOffer(payload: JobOfferPayload): Promise<JobOffer
 }
 
 export async function updateJobOffer(id: string, payload: JobOfferPayload): Promise<JobOffer> {
+  await requireSession()
+
   const { data, error } = await supabase
     .from('job_offers')
     .update(payload)
@@ -92,6 +101,8 @@ export async function updateJobOffer(id: string, payload: JobOfferPayload): Prom
 }
 
 export async function deleteJobOffer(id: string): Promise<void> {
+  await requireSession()
+
   const { error } = await supabase.from('job_offers').delete().eq('id', id)
 
   if (error) {

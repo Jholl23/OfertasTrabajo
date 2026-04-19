@@ -1,3 +1,4 @@
+import { requireSession } from '../auth/requireSession'
 import { supabase } from '../../lib/supabase/client'
 
 type ImportJobFromUrlRequest = {
@@ -26,6 +27,8 @@ type ImportJobFromUrlResponse = {
 }
 
 export async function importJobFromUrl(url: string): Promise<ImportJobFromUrlResponse> {
+  await requireSession()
+
   const payload: ImportJobFromUrlRequest = { url }
 
   const { data, error } = await supabase.functions.invoke<ImportJobFromUrlResponse>('import-job-from-url', {

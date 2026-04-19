@@ -1,11 +1,14 @@
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 
+import { FormField } from '../../components/forms/FormField'
+import { formControlClassName } from '../../components/forms/styles'
 import {
   createEmptyJobOfferDraft,
   toJobOfferPayload,
   validateJobOfferDraft,
   type ValidationErrors,
 } from '../../lib/schemas/jobOffer'
+import { formatJobOfferStatus } from '../../lib/utils/job-offer-format'
 import type { JobOfferDraft, JobOfferPayload } from '../../types/job-offer'
 import { importJobFromUrl, type ImportedOfferPayload } from './api'
 
@@ -135,9 +138,6 @@ export function ImportJobFromUrlPanel({ isSaving, onSave }: ImportJobFromUrlPane
     }
   }
 
-  const inputClassName =
-    'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none ring-brand-500 transition focus:border-brand-500 focus:ring-2'
-
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-panel">
       <div className="space-y-2">
@@ -150,7 +150,7 @@ export function ImportJobFromUrlPanel({ isSaving, onSave }: ImportJobFromUrlPane
           value={url}
           onChange={(event) => setUrl(event.target.value)}
           placeholder="https://example.com/jobs/frontend-engineer"
-          className={`${inputClassName} md:flex-1`}
+          className={`${formControlClassName} md:flex-1`}
           aria-label="Job URL"
         />
         <button
@@ -178,133 +178,133 @@ export function ImportJobFromUrlPanel({ isSaving, onSave }: ImportJobFromUrlPane
             {isLowConfidence ? <p className="text-xs font-medium text-amber-700">Low confidence detected. Review all fields carefully.</p> : null}
           </div>
 
-          <Field label="Company *" error={validationErrors.company}>
+          <FormField label="Company *" error={validationErrors.company}>
             <input
               value={reviewDraft.company}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, company: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Job title *" error={validationErrors.job_title}>
+          <FormField label="Job title *" error={validationErrors.job_title}>
             <input
               value={reviewDraft.job_title}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, job_title: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Date found *" error={validationErrors.date_found}>
+          <FormField label="Date found *" error={validationErrors.date_found}>
             <input
               type="date"
               value={reviewDraft.date_found}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, date_found: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Closing date">
+          <FormField label="Closing date">
             <input
               type="date"
               value={reviewDraft.closing_date}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, closing_date: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Status" error={validationErrors.offer_status}>
-            <input value={reviewDraft.offer_status} disabled className={`${inputClassName} bg-slate-100`} />
-          </Field>
+          <FormField label="Status" error={validationErrors.offer_status}>
+            <input value={formatJobOfferStatus(reviewDraft.offer_status)} disabled className={`${formControlClassName} bg-slate-100`} />
+          </FormField>
 
-          <Field label="External offer id">
+          <FormField label="External offer ID">
             <input
               value={reviewDraft.external_offer_id}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, external_offer_id: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Source site">
+          <FormField label="Source site">
             <input
               value={reviewDraft.source_site}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, source_site: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="URL" error={validationErrors.url}>
+          <FormField label="URL" error={validationErrors.url}>
             <input
               value={reviewDraft.url}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, url: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Job functions">
+          <FormField label="Job functions">
             <input
               value={reviewDraft.job_functions}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, job_functions: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Salary raw">
+          <FormField label="Salary raw">
             <input
               value={reviewDraft.salary_raw}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, salary_raw: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Currency">
+          <FormField label="Currency">
             <input
               value={reviewDraft.currency}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, currency: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Salary min" error={validationErrors.salary_min}>
+          <FormField label="Salary min" error={validationErrors.salary_min}>
             <input
               value={reviewDraft.salary_min}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, salary_min: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Salary max" error={validationErrors.salary_max}>
+          <FormField label="Salary max" error={validationErrors.salary_max}>
             <input
               value={reviewDraft.salary_max}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, salary_max: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Import confidence" error={validationErrors.import_confidence}>
+          <FormField label="Import confidence" error={validationErrors.import_confidence}>
             <input
               value={reviewDraft.import_confidence}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, import_confidence: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Description" className="md:col-span-2">
+          <FormField label="Description" className="md:col-span-2">
             <textarea
               value={reviewDraft.description}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, description: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
               rows={4}
             />
-          </Field>
+          </FormField>
 
-          <Field label="Notes" className="md:col-span-2">
+          <FormField label="Notes" className="md:col-span-2">
             <textarea
               value={reviewDraft.notes}
               onChange={(event) => setReviewDraft((previous) => (previous ? { ...previous, notes: event.target.value } : previous))}
-              className={inputClassName}
+              className={formControlClassName}
               rows={3}
             />
-          </Field>
+          </FormField>
 
           <label className="md:col-span-2 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
             <input type="checkbox" checked={isReviewed} onChange={(event) => setIsReviewed(event.target.checked)} className="mt-0.5" />
@@ -337,22 +337,5 @@ export function ImportJobFromUrlPanel({ isSaving, onSave }: ImportJobFromUrlPane
         </form>
       ) : null}
     </section>
-  )
-}
-
-type FieldProps = {
-  label: string
-  children: ReactNode
-  error?: string
-  className?: string
-}
-
-function Field({ label, children, error, className }: FieldProps) {
-  return (
-    <label className={`block ${className ?? ''}`}>
-      <span className="mb-1 block text-sm font-medium text-slate-700">{label}</span>
-      {children}
-      {error ? <span className="mt-1 block text-xs text-rose-600">{error}</span> : null}
-    </label>
   )
 }

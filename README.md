@@ -90,6 +90,7 @@ The app validates these variables at startup and fails fast if they are missing.
 - Full job offers CRUD dashboard (list, create, edit, delete)
 - Search by title/company/description and status filtering
 - CSV export button to download all authenticated user job offers
+- URL import UI with manual review and confirmation before saving
 - Dashboard stats cards plus loading/empty/error states for offers
 - Logout action in top navigation
 
@@ -120,6 +121,25 @@ supabase functions serve import-job-from-url
 
 See `supabase/functions/import-job-from-url/README.md` for usage details.
 
+## URL Import Review Flow (Frontend)
+
+The dashboard includes an **Import offer from URL** panel:
+
+1. Paste a job posting URL and click **Import URL**.
+2. The frontend calls Supabase Edge Function `import-job-from-url`.
+3. Extracted values are loaded into a review form.
+4. You can edit any field before saving.
+5. A confidence badge is displayed. Imports below `0.60` are highlighted as low confidence.
+6. Saving is blocked until you explicitly check the manual confirmation box.
+7. After confirmation, the app saves the reviewed payload through the normal `job_offers` insert flow.
+
+Error handling included:
+
+- URL validation before request.
+- Import request error surface (network/function failures).
+- Field-level validation for reviewed data prior to save.
+- Save errors surfaced without losing review form state.
+
 ## Progress Notes
 
 ### 2026-04-19
@@ -138,3 +158,4 @@ See `supabase/functions/import-job-from-url/README.md` for usage details.
 - Added create/edit forms covering all v1 job offer fields and validation messages.
 - Added CSV export flow with a dashboard action and client-side CSV generation.
 - Added `import-job-from-url` Supabase Edge Function with phase 1 deterministic extraction and review-only response behavior.
+- Implemented dashboard URL import review UI, low-confidence highlighting, and manual-confirmation-only save flow.

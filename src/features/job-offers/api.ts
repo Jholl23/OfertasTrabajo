@@ -52,6 +52,16 @@ export async function listJobOffers(options: ListJobOffersOptions): Promise<JobO
   return (data ?? []) as JobOffer[]
 }
 
+export async function listJobOffersForExport(): Promise<JobOffer[]> {
+  const { data, error } = await supabase.from('job_offers').select(JOB_OFFERS_BASE_SELECT).order('date_found', { ascending: false })
+
+  if (error) {
+    throw error
+  }
+
+  return (data ?? []) as JobOffer[]
+}
+
 export async function createJobOffer(payload: JobOfferPayload): Promise<JobOffer> {
   const { data, error } = await supabase
     .from('job_offers')

@@ -87,6 +87,9 @@ The app validates these variables at startup and fails fast if they are missing.
 - Supabase-backed login page
 - Route-protected dashboard shell
 - Session-aware layout with active user email
+- Full job offers CRUD dashboard (list, create, edit, delete)
+- Search by title/company/description and status filtering
+- Dashboard stats cards plus loading/empty/error states for offers
 - Logout action in top navigation
 
 ## Progress Notes
@@ -101,3 +104,7 @@ The app validates these variables at startup and fails fast if they are missing.
 - Implemented Supabase Auth flow (login, session restore, logout).
 - Added modular auth provider/hooks and route guards for protected pages.
 - Updated layout and navigation to reflect session-aware UI behavior.
+- Implemented job offer domain types and validation schema helpers.
+- Added Supabase-backed job offers CRUD API layer with search and status filtering.
+- Built professional dashboard table UI with loading, empty, and error states.
+- Added create/edit forms covering all v1 job offer fields and validation messages.

@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { JobOfferForm } from '../features/job-offers/JobOfferForm'
 import { JobOffersTable } from '../features/job-offers/JobOffersTable'
-import { createJobOffer, deleteJobOffer, listJobOffers, updateJobOffer } from '../features/job-offers/api'
+import { createJobOffer, deleteJobOffer, listJobOffers, listJobOffersForExport, updateJobOffer } from '../features/job-offers/api'
+import { downloadJobOffersCsv } from '../lib/utils/csv'
 import { JOB_OFFER_STATUSES, type JobOffer, type JobOfferPayload, type JobOfferStatus } from '../types/job-offer'
 
 type EditorState =
@@ -21,6 +22,7 @@ export function DashboardPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [editorState, setEditorState] = useState<EditorState>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   const loadOffers = useCallback(async () => {
     setIsLoading(true)
@@ -97,6 +99,24 @@ export function DashboardPage() {
     }
   }
 
+  const onExportCsv = async () => {
+    setIsExporting(true)
+    setErrorMessage(null)
+
+    try {
+      const exportOffers = await listJobOffersForExport()
+      downloadJobOffersCsv(exportOffers)
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message)
+      } else {
+        setErrorMessage('Unable to export CSV. Please try again.')
+      }
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <section className="space-y-6">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-panel">
@@ -115,13 +135,23 @@ export function DashboardPage() {
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-panel">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h3 className="text-lg font-semibold text-slate-900">Offers</h3>
-          <button
-            type="button"
-            onClick={() => setEditorState({ mode: 'create' })}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
-          >
-            New offer
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void onExportCsv()}
+              disabled={isExporting}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isExporting ? 'Exporting...' : 'Export CSV'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditorState({ mode: 'create' })}
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+            >
+              New offer
+            </button>
+          </div>
         </div>
 
         <div className="mb-5 grid gap-3 md:grid-cols-[1fr_220px]">

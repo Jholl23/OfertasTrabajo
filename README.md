@@ -89,8 +89,16 @@ The app validates these variables at startup and fails fast if they are missing.
 - Session-aware layout with active user email
 - Full job offers CRUD dashboard (list, create, edit, delete)
 - Search by title/company/description and status filtering
+- CSV export button to download all authenticated user job offers
 - Dashboard stats cards plus loading/empty/error states for offers
 - Logout action in top navigation
+
+## CSV Export
+
+- The dashboard includes an **Export CSV** button in the offers section.
+- Export is generated from the authenticated user's rows only (via Supabase auth + RLS policies).
+- The CSV uses human-friendly column names and keeps ISO date fields unchanged.
+- Salary columns include `salary_raw`, `salary_min`, and `salary_max`.
 
 ## Progress Notes
 
@@ -108,3 +116,4 @@ The app validates these variables at startup and fails fast if they are missing.
 - Added Supabase-backed job offers CRUD API layer with search and status filtering.
 - Built professional dashboard table UI with loading, empty, and error states.
 - Added create/edit forms covering all v1 job offer fields and validation messages.
+- Added CSV export flow with a dashboard action and client-side CSV generation.

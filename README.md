@@ -100,6 +100,26 @@ The app validates these variables at startup and fails fast if they are missing.
 - The CSV uses human-friendly column names and keeps ISO date fields unchanged.
 - Salary columns include `salary_raw`, `salary_min`, and `salary_max`.
 
+
+## URL Import Edge Function
+
+A Supabase Edge Function is available at `supabase/functions/import-job-from-url` for phase 1 URL-based offer extraction.
+
+What it does:
+
+- Fetches raw HTML from a provided URL (`POST` body: `{ "url": "..." }`).
+- Extracts title, meta tags, Open Graph tags, JSON-LD (if available), and visible text summary.
+- Normalizes whitespace and infers normalized job fields deterministically.
+- Returns `import_confidence` and `requires_review: true` to enforce a frontend review step before any save.
+
+Run locally:
+
+```bash
+supabase functions serve import-job-from-url
+```
+
+See `supabase/functions/import-job-from-url/README.md` for usage details.
+
 ## Progress Notes
 
 ### 2026-04-19
@@ -117,3 +137,4 @@ The app validates these variables at startup and fails fast if they are missing.
 - Built professional dashboard table UI with loading, empty, and error states.
 - Added create/edit forms covering all v1 job offer fields and validation messages.
 - Added CSV export flow with a dashboard action and client-side CSV generation.
+- Added `import-job-from-url` Supabase Edge Function with phase 1 deterministic extraction and review-only response behavior.

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { ImportJobFromUrlPanel } from '../features/import-job/ImportJobFromUrlPanel'
 import { JobOfferForm } from '../features/job-offers/JobOfferForm'
 import { JobOffersTable } from '../features/job-offers/JobOffersTable'
 import { createJobOffer, deleteJobOffer, listJobOffers, listJobOffersForExport, updateJobOffer } from '../features/job-offers/api'
@@ -23,6 +24,7 @@ export function DashboardPage() {
   const [editorState, setEditorState] = useState<EditorState>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [importNotice, setImportNotice] = useState<string | null>(null)
 
   const loadOffers = useCallback(async () => {
     setIsLoading(true)
@@ -63,6 +65,7 @@ export function DashboardPage() {
     setIsSaving(true)
     try {
       await createJobOffer(payload)
+      setImportNotice(null)
       setEditorState(null)
       await loadOffers()
     } finally {
@@ -74,7 +77,21 @@ export function DashboardPage() {
     setIsSaving(true)
     try {
       await updateJobOffer(id, payload)
+      setImportNotice(null)
       setEditorState(null)
+      await loadOffers()
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const onSaveImportedOffer = async (payload: JobOfferPayload) => {
+    setIsSaving(true)
+    setErrorMessage(null)
+
+    try {
+      await createJobOffer(payload)
+      setImportNotice('Imported offer reviewed and saved successfully.')
       await loadOffers()
     } finally {
       setIsSaving(false)
@@ -184,6 +201,12 @@ export function DashboardPage() {
           onDelete={(offer) => void onDelete(offer)}
         />
       </div>
+
+      <ImportJobFromUrlPanel isSaving={isSaving} onSave={onSaveImportedOffer} />
+
+      {importNotice ? (
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{importNotice}</p>
+      ) : null}
 
       {editorState?.mode === 'create' ? (
         <JobOfferForm mode="create" isSubmitting={isSaving} onCancel={() => setEditorState(null)} onSubmit={onCreate} />
